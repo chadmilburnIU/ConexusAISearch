@@ -7,8 +7,9 @@ from rag.loader import upload_and_ingest
 from rag.store import ensure_indexes
 from config import EMBED_DIM, HYBRID_ACCEPT
 ####################################################
-import streamlit.components.v1 as components
-from rag.graph_explorer import render_graph_html
+# these are required to view full graph db if needed
+# import streamlit.components.v1 as components
+# from rag.graph_explorer import render_graph_html
 ####################################################
 from urllib.parse import urlparse
 #####################################################
