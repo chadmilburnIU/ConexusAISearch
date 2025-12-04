@@ -1,4 +1,4 @@
-# Neo4j Q&A Copilot — OpenAI Web Search Tool (One Key Only)
+# Neo4j Q&A Copilot — OpenAI Web Search Tool
 
 ## What’s in here?
 - Streamlit app with chat and unlimited follow-ups.
