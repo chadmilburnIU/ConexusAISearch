@@ -82,7 +82,6 @@ In **Admin → Graph Explorer** you can render a capped, interactive view of you
 2. Read the answer.
 3. Expand the **Source 1 / Source 2 / …** panels to see the supporting text and, when available, click the link to the original case study.
 
-> Depending on configuration, you may be able to change how many sources are shown (e.g., top 3 vs top 10) from the sidebar. Showing more sources gives you more context but can take slightly longer.
 
 ---
 
