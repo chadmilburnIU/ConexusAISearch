@@ -18,9 +18,6 @@ You can do everything in your browser.
 - [Part 4 — Add Your PDF Case Studies](#part-4--add-your-pdf-case-studies)
 - [Part 5 — Run the Notebook to Build the Database](#part-5--run-the-notebook-to-build-the-database)
 - [Part 6 — Verify in Neo4j](#part-6--verify-in-neo4j)
-- [How the “Top Answers” Work (High Level)](#how-the-top-answers-work-high-level)
-- [Using Streamlit Cloud Secrets (Optional)](#using-streamlit-cloud-secrets-optional)
-- [FAQ](#faq)
 
 ---
 
@@ -151,31 +148,6 @@ You should see your case study titles and how many chunks each has.
 
 ---
 
-## How the “Top Answers” Work (High Level)
-When you ask a question in the app, it finds relevant **Chunk** nodes using a **hybrid search**:
-1. **Vector similarity**: finds chunks that *mean* something similar to your question.
-2. **Full‑text search**: finds chunks that *contain* your words/phrases.
-
-These are blended and **scored**; the highest‑scoring chunks are returned (commonly **Top‑3** by default, with an option to show more). The final answer is composed from those top chunks, so you can expand each source to verify the text.
-
----
-
-## Using Streamlit Cloud Secrets (Optional)
-If you deploy the app on Streamlit Cloud, put credentials in **App → Settings → Secrets**:
-
-```toml
-# Streamlit Secrets (example)
-NEO4J_URI = "bolt+s://xxxxxxxx.databases.neo4j.io:7687"
-NEO4J_USER = "neo4j"
-NEO4J_PASSWORD = "your-strong-password"
-
-# If the app also uses OpenAI:
-OPENAI_API_KEY = "sk-proj_..."
-```
-
-> **Never** commit keys or passwords to GitHub. Keep them in Streamlit **Secrets** (or environment variables).
-
----
 
 ## FAQ
 **I lost my Neo4j password—what now?**  
