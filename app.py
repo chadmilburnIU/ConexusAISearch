@@ -7,7 +7,7 @@ from rag.store import ensure_indexes
 from config import EMBED_DIM, HYBRID_ACCEPT
 
 st.set_page_config(page_title="Conexus AI Search", layout="wide")
-st.set_page_config(page_title="Conexus AI Search", page_icon="assets/conexus.svg", layout="wide")
+st.set_page_config(page_title="Conexus AI Search", page_icon="assets/conexus.png", layout="wide")
 
 # Sidebar: Admin
 with st.sidebar:
