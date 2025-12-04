@@ -10,8 +10,7 @@ from config import EMBED_DIM, HYBRID_ACCEPT
 import streamlit.components.v1 as components
 from rag.graph_explorer import render_graph_html
 ####################################################
-from rag.store import fetch_case_study
-####################################################
+
 
 # Maintenance gate
 if st.secrets.get("MAINTENANCE_MODE", "false").lower() in ("true", "1", "yes"):
