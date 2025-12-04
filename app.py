@@ -1,4 +1,5 @@
-import streamlit as st
+# import streamlit as st
+import hmac, streamlit as st # used for password protection of app
 from rag.retriever import retrieve_topn
 from rag.composer import compose_grounded_answer, web_fallback_answer
 from rag.models import AnswerItem, CaseStudy, Chunk
@@ -13,6 +14,25 @@ if st.secrets.get("MAINTENANCE_MODE", "false").lower() in ("true", "1", "yes"):
     st.info(st.secrets.get("MAINTENANCE_MESSAGE", "Temporarily unavailable."))
     st.stop()
 
+def _require_password():
+    password = st.secrets.get("APP_PASSWORD", "")
+    if not password:
+        return  # no password set => skip
+
+    def _check():
+        if hmac.compare_digest(st.session_state._pw, password):
+            st.session_state._authed = True
+        else:
+            st.session_state._authed = False
+
+    if st.session_state.get("_authed"):
+        return
+
+    st.text_input("Enter password", type="password", key="_pw", on_change=_check)
+    if not st.session_state.get("_authed"):
+        st.stop()
+
+_require_password()
 
 st.set_page_config(page_title="Conexus AI Search", layout="wide")
 st.set_page_config(page_title="Conexus AI Search", page_icon="assets/logo.png", layout="wide")
