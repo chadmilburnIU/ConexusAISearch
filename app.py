@@ -122,9 +122,9 @@ for turn in st.session_state.history:
     with st.chat_message("assistant"):
         st.write(turn["resp"]["answer"])
         if turn["resp"]["grounded_in_db"]:
-            st.caption("Grounded in Neo4j (top 3)")
+            st.caption("Grounded in Conexus MRG Case Studies (top 3)")
         else:
-            st.caption("Not found in Neo4j")
+            st.caption("Not found in Conexus MRG Case Studies")
             if turn["resp"].get("external_link"):
                 st.markdown(f"External source: {turn['resp']['external_link']}")
         for i, item in enumerate(turn["resp"]["top3"], start=1):
