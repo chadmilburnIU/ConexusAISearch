@@ -64,7 +64,6 @@ Use the prebuilt notebook to parse PDFs and load them into Neo4j.
 
 > Colab may ask to connect to a runtime or access Google Drive later—allow it when prompted.
 
-*(If you need the file again, keep a copy in your repo or Drive so you can reuse it.)*
 
 ---
 
