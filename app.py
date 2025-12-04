@@ -50,7 +50,7 @@ with st.sidebar:
     st.markdown("---")
     st.header("Upload Case Studies")
     upload_and_ingest()
-
+    st.markdown("---")
     #################################################
     st.subheader("Graph Explorer")
     
