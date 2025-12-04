@@ -6,6 +6,10 @@ from rag.models import AnswerItem, CaseStudy, Chunk
 from rag.loader import upload_and_ingest
 from rag.store import ensure_indexes
 from config import EMBED_DIM, HYBRID_ACCEPT
+####################################################
+import streamlit.components.v1 as components
+from rag.graph_explorer import render_graph_html
+####################################################
 
 # Maintenance gate
 if st.secrets.get("MAINTENANCE_MODE", "false").lower() in ("true", "1", "yes"):
@@ -46,6 +50,32 @@ with st.sidebar:
     st.markdown("---")
     st.header("Upload Case Studies")
     upload_and_ingest()
+
+    #################################################
+    st.subheader("Graph Explorer")
+    
+    max_nodes = st.slider("Max nodes to visualize", min_value=100, max_value=5000, value=1000, step=100,
+                          help="Limits how many nodes are pulled to keep the view responsive.")
+    
+    if st.button("Render full graph (capped)"):
+        with st.spinner("Building graph…"):
+            html_path = render_graph_html(max_nodes=max_nodes)
+            # Display interactive graph
+            with open(html_path, "r", encoding="utf-8") as f:
+                components.html(f.read(), height=820, scrolling=True)
+    
+            # Optional: let admins download the HTML
+            with open(html_path, "rb") as fbin:
+                st.download_button(
+                    "Download graph HTML",
+                    data=fbin,
+                    file_name="neo4j_graph.html",
+                    mime="text/html",
+                )
+    
+    st.caption("Note: This view caps the number of nodes to avoid memory issues on large databases.")
+    #################################################
+
 
 # Chat panel
 st.title("Conexus AI Search")
