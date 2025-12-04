@@ -1,4 +1,4 @@
-# Conexus AI Search — Neo4j Aura + Google Colab Setup (Non‑Technical)
+# Conexus AI Search — Neo4j Aura + Google Colab Setup
 
 This guide helps you, step‑by‑step, to:
 1. Create a **free Neo4j Aura** database (no install).
