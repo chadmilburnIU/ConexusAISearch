@@ -72,15 +72,21 @@ def render_graph_html(max_nodes: int = 1000) -> str:
             physics=True,
         )
 
-    # Write tmp HTML
-    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
-    tmp.close()
+    # --- FIX: set_options must be JSON, not JS ---
     net.set_options("""
-    const options = {
-      nodes: { font: { size: 12 } },
-      edges: { smooth: { type: "dynamic" } },
-      physics: { stabilization: { iterations: 200 }, solver: "forceAtlas2Based" }
+    {
+      "nodes": { "font": { "size": 12 } },
+      "edges": { "smooth": { "type": "dynamic" } },
+      "physics": {
+        "solver": "forceAtlas2Based",
+        "stabilization": { "iterations": 200 }
+      }
     }
     """)
+
+    # Write tmp HTML and return path
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
+    tmp.close()
     net.show(tmp.name)
     return tmp.name
+
