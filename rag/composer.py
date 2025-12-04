@@ -1,12 +1,16 @@
 from typing import List, Optional, Tuple
 from openai import OpenAI
-from config import OPENAI_API_KEY
+from config import OPENAI_API_KEY, OPENAI_PROJECT_ID, OPENAI_ORG_ID, CHAT_MODEL, EMBED_MODEL, WEB_SEARCH_ENABLED
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+client = OpenAI(
+    api_key=OPENAI_API_KEY,
+    project=OPENAI_PROJECT_ID if OPENAI_PROJECT_ID else None,
+    organization=OPENAI_ORG_ID if OPENAI_ORG_ID else None,
+)
 
 # --- Embeddings ---
 def embed_query(q: str) -> List[float]:
-    emb = client.embeddings.create(model="text-embedding-3-small", input=q)
+    emb = client.embeddings.create(model=EMBED_MODEL, input=q)
     return emb.data[0].embedding
 
 # --- Answer composition (grounded) ---
@@ -34,18 +38,34 @@ def compose_grounded_answer(question: str, chunks: List[dict]) -> str:
 
     ]
 
-    res = client.chat.completions.create(model="gpt-5-reasoning", messages=messages)
+    res = client.chat.completions.create(model=CHAT_MODEL, messages=messages)
 
     return res.choices[0].message.content
 
-# --- Web fallback using OpenAI Responses API web_search tool ---
+# --- Web fallback (optional) ---
 def web_fallback_answer(question: str) -> Tuple[str, Optional[str]]:
+
+    if not WEB_SEARCH_ENABLED:
+
+        # No web search; return general model answer with a disclaimer
+
+        msg = [
+
+            {"role": "system", "content": "Answer generally. If not in local context, say it's not from the database."},
+
+            {"role": "user", "content": question}
+
+        ]
+
+        res = client.chat.completions.create(model=CHAT_MODEL, messages=msg)
+
+        return ("Not found in Neo4j. " + res.choices[0].message.content, None)
 
     try:
 
         res = client.responses.create(
 
-            model="gpt-5-reasoning",
+            model=CHAT_MODEL,
 
             input=question,
 
@@ -55,43 +75,11 @@ def web_fallback_answer(question: str) -> Tuple[str, Optional[str]]:
 
         )
 
-        # Generic extraction: prefer output_text if present
-
-        answer_text = getattr(res, "output_text", None)
-
-        if not answer_text:
-
-            # Fallback to a minimal parse of content blocks
-
-            try:
-
-                blocks = getattr(res, "output", []) or []
-
-                parts = []
-
-                for b in blocks:
-
-
-                    txt = getattr(b, "text", None) or getattr(getattr(b, "content", None), "0", None)
-
-                    if txt:
-
-                        parts.append(str(txt))
-
-                answer_text = "\n".join(parts) if parts else "Answer generated from web search."
-
-            except Exception:
-
-                answer_text = "Answer generated from web search."
-
-
-        # Try to find a cited URL if available
+        answer_text = getattr(res, "output_text", None) or "Answer generated from web search."
 
         cited_url = None
 
         try:
-
-            # Some SDK versions expose citations under res.output or res.annotations
 
             for b in (getattr(res, "output", []) or []):
 
@@ -111,7 +99,17 @@ def web_fallback_answer(question: str) -> Tuple[str, Optional[str]]:
 
     except Exception:
 
-        # If web_search tool isn't enabled on the account, degrade gracefully
+        # If the tool is not enabled for the key/account
 
-        return ("Not found in Neo4j. Web search is unavailable for this key.", None)
+        msg = [
+
+            {"role": "system", "content": "Answer generally. If not in local context, say it's not from the database."},
+
+            {"role": "user", "content": question}
+
+        ]
+
+        res = client.chat.completions.create(model=CHAT_MODEL, messages=msg)
+
+        return ("Not found in Neo4j. " + res.choices[0].message.content, None)
 
