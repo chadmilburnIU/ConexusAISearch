@@ -87,6 +87,8 @@ def render_graph_html(max_nodes: int = 1000) -> str:
     # Write tmp HTML and return path
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".html")
     tmp.close()
-    net.show(tmp.name)
+    # Streamlit-safe render (no notebook template, no browser popup)
+    net.write_html(tmp.name, open_browser=False, notebook=False)
     return tmp.name
+
 
