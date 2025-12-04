@@ -19,7 +19,7 @@ with st.sidebar:
     upload_and_ingest()
 
 # Chat panel
-st.title("Neo4j Q&A Copilot")
+st.title("Conexus AI Search")
 if "history" not in st.session_state:
     st.session_state.history = []
 
