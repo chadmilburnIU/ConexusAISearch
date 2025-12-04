@@ -43,6 +43,12 @@ _require_password()
 st.set_page_config(page_title="Conexus AI Search", layout="wide")
 st.set_page_config(page_title="Conexus AI Search", page_icon="assets/logo.png", layout="wide")
 
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_full_case_study(case_id: str):
+    return fetch_case_study(case_id)
+
+
 # Sidebar: Admin
 with st.sidebar:
     st.header("Admin")
@@ -154,19 +160,22 @@ for t_idx, turn in enumerate(st.session_state.history):
                     f"url={item['case_study'].get('url')}"
                 )
 
-                # --- NEW: View full case study button ---
-                case_id = item['case_study']['case_id']
-                btn_key = f"view_full_{t_idx}_{i}_{case_id}"
-                if st.button("View full case study", key=btn_key):
-                    data = _get_full_case_study(case_id)
-                    if not data or not data.get("full_text"):
-                        st.warning("Could not retrieve the full case study.")
-                    else:
-                        with st.expander(f"Full case study — {data.get('title') or case_id}", expanded=True):
-                            st.text(data["full_text"])
-                            st.download_button(
-                                "Download as .txt",
-                                data=data["full_text"].encode("utf-8"),
-                                file_name=f"{(data.get('title') or case_id).replace(' ', '_')}.txt",
-                                mime="text/plain",
-                            )
+                # View full case study button
+                case_id = item['case_study'].get('case_id') or item['case_study'].get('id')
+                if not case_id:
+                    st.warning("No case_id on this source; cannot fetch full case study.")
+                else:
+                    btn_key = f"view_full_{t_idx}_{i}_{case_id}"
+                    if st.button("View full case study", key=btn_key):
+                        data = get_full_case_study(case_id)  # cached helper
+                        if not data or not data.get("full_text"):
+                            st.warning("Could not retrieve the full case study.")
+                        else:
+                            with st.expander(f"Full case study — {data.get('title') or case_id}", expanded=True):
+                                st.text(data["full_text"])
+                                st.download_button(
+                                    "Download as .txt",
+                                    data=data["full_text"].encode("utf-8"),
+                                    file_name=f"{(data.get('title') or case_id).replace(' ', '_')}.txt",
+                                    mime="text/plain",
+                                )
