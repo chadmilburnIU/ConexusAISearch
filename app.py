@@ -6,6 +6,14 @@ from rag.loader import upload_and_ingest
 from rag.store import ensure_indexes
 from config import EMBED_DIM, HYBRID_ACCEPT
 
+# Maintenance gate
+if st.secrets.get("MAINTENANCE_MODE", "false").lower() in ("true", "1", "yes"):
+    st.set_page_config(page_title="Conexus AI Search")
+    st.title("Conexus AI Search")
+    st.info(st.secrets.get("MAINTENANCE_MESSAGE", "Temporarily unavailable."))
+    st.stop()
+
+
 st.set_page_config(page_title="Conexus AI Search", layout="wide")
 st.set_page_config(page_title="Conexus AI Search", page_icon="assets/logo.png", layout="wide")
 
