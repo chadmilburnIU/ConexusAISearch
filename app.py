@@ -10,6 +10,8 @@ from config import EMBED_DIM, HYBRID_ACCEPT
 import streamlit.components.v1 as components
 from rag.graph_explorer import render_graph_html
 ####################################################
+from rag.store import fetch_case_study
+####################################################
 
 # Maintenance gate
 if st.secrets.get("MAINTENANCE_MODE", "false").lower() in ("true", "1", "yes"):
@@ -101,6 +103,9 @@ if user_q:
             case_study=CaseStudy(case_id=c['case_id'], title=c['title'], url=c['url']),
             chunk=Chunk(chunk_id=c['cid'], text=c['text'], order=int(c['order']), char_start=int(c['start']), char_end=int(c['end']))
         ))
+        #######################################################
+
+        #########################################################
 
     st.session_state.history.append({
         "q": user_q,
@@ -112,17 +117,56 @@ if user_q:
         }
     })
 
-for turn in st.session_state.history:
+# for turn in st.session_state.history:
+#     st.chat_message("user").write(turn["q"])
+#     with st.chat_message("assistant"):
+#         st.write(turn["resp"]["answer"])
+#         if turn["resp"]["grounded_in_db"]:
+#             st.caption("Grounded in Neo4j (top 3)")
+#         else:
+#             st.caption("Not found in Neo4j")
+#             if turn["resp"].get("external_link"):
+#                 st.markdown(f"External source: {turn['resp']['external_link']}")
+#         for i, item in enumerate(turn["resp"]["top3"], start=1):
+#             with st.expander(f"Source {i}: {item['case_study']['title']} (score {item['score']})"):
+#                 st.write(item['chunk']['text'])
+#                 st.caption(f"chunk_id={item['chunk']['chunk_id']} range={item['chunk']['char_start']}-{item['chunk']['char_end']} url={item['case_study'].get('url')}")
+
+for t_idx, turn in enumerate(st.session_state.history):
     st.chat_message("user").write(turn["q"])
     with st.chat_message("assistant"):
         st.write(turn["resp"]["answer"])
+
         if turn["resp"]["grounded_in_db"]:
             st.caption("Grounded in Neo4j (top 3)")
         else:
             st.caption("Not found in Neo4j")
             if turn["resp"].get("external_link"):
                 st.markdown(f"External source: {turn['resp']['external_link']}")
+
         for i, item in enumerate(turn["resp"]["top3"], start=1):
             with st.expander(f"Source {i}: {item['case_study']['title']} (score {item['score']})"):
+                # Show the matching chunk
                 st.write(item['chunk']['text'])
-                st.caption(f"chunk_id={item['chunk']['chunk_id']} range={item['chunk']['char_start']}-{item['chunk']['char_end']} url={item['case_study'].get('url')}")
+                st.caption(
+                    f"chunk_id={item['chunk']['chunk_id']} "
+                    f"range={item['chunk']['char_start']}-{item['chunk']['char_end']} "
+                    f"url={item['case_study'].get('url')}"
+                )
+
+                # --- NEW: View full case study button ---
+                case_id = item['case_study']['case_id']
+                btn_key = f"view_full_{t_idx}_{i}_{case_id}"
+                if st.button("View full case study", key=btn_key):
+                    data = _get_full_case_study(case_id)
+                    if not data or not data.get("full_text"):
+                        st.warning("Could not retrieve the full case study.")
+                    else:
+                        with st.expander(f"Full case study — {data.get('title') or case_id}", expanded=True):
+                            st.text(data["full_text"])
+                            st.download_button(
+                                "Download as .txt",
+                                data=data["full_text"].encode("utf-8"),
+                                file_name=f"{(data.get('title') or case_id).replace(' ', '_')}.txt",
+                                mime="text/plain",
+                            )
