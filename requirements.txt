@@ -1,0 +1,7 @@
+streamlit
+neo4j==5.*
+python-dotenv
+pymupdf
+pydantic
+openai
+numpy
