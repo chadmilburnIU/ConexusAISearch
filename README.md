@@ -73,6 +73,7 @@ After upload finishes, your new content is immediately searchable. Ask a questio
 ## Optional: Visualize the database
 
 In **Admin → Graph Explorer** you can render a capped, interactive view of your graph to see how **CaseStudy** and **Chunk** nodes are connected. Click **Render full graph (capped)** to generate and view an interactive HTML. (This is capped to keep the view responsive.)
+
 ---
 
 ## Day‑to‑day use
