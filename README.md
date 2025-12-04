@@ -2,7 +2,7 @@
 
 A simple Streamlit app that lets you **ask natural‑language questions** and returns answers grounded in your organization’s **Conexus MRG case studies**. It also includes an **Admin** sidebar to upload new PDFs and visualize your Neo4j graph.
 
-> This README is written for non‑technical users. You can deploy the app on **Streamlit Community Cloud** with only a few secrets (keys) and no local installs.
+> You can deploy the app on **Streamlit Community Cloud** with only a few secrets (keys) and no local installs.
 
 ---
 
@@ -13,10 +13,7 @@ A simple Streamlit app that lets you **ask natural‑language questions** and re
 - In the **Admin** sidebar:
   - **Ensure Indexes**: creates Neo4j search indexes (run the first time you deploy).
   - **Upload Case Studies**: drag‑and‑drop PDF files to add them to the database.
-  - **Graph Explorer**: render a capped, interactive view of your database to inspect nodes and relationships.
-
-> The Graph Explorer writes a temporary HTML file and shows it inside the app using an interactive PyVis view (nodes + edges + physics). fileciteturn0file8
-
+ 
 ---
 
 ## How answers are selected (plain English)
