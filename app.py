@@ -61,24 +61,25 @@ with st.sidebar:
     upload_and_ingest()
     st.markdown("---")
     #################################################
-    st.subheader("Graph Explorer")
-    max_nodes = st.slider("Max nodes to visualize", min_value=100, max_value=5000, value=1000, step=100,
-                          help="Limits how many nodes are pulled to keep the view responsive.")
-    if st.button("Render full graph (capped)"):
-        with st.spinner("Building graph…"):
-            html_path = render_graph_html(max_nodes=max_nodes)
-            # Display interactive graph
-            with open(html_path, "r", encoding="utf-8") as f:
-                components.html(f.read(), height=820, scrolling=True)
-            # Optional: let admins download the HTML
-            with open(html_path, "rb") as fbin:
-                st.download_button(
-                    "Download graph HTML",
-                    data=fbin,
-                    file_name="neo4j_graph.html",
-                    mime="text/html",
-                )
-    st.caption("Note: This view caps the number of nodes to avoid memory issues on large databases.")
+    # This will display full db graph
+    # st.subheader("Graph Explorer")
+    # max_nodes = st.slider("Max nodes to visualize", min_value=100, max_value=5000, value=1000, step=100,
+    #                       help="Limits how many nodes are pulled to keep the view responsive.")
+    # if st.button("Render full graph (capped)"):
+    #     with st.spinner("Building graph…"):
+    #         html_path = render_graph_html(max_nodes=max_nodes)
+    #         # Display interactive graph
+    #         with open(html_path, "r", encoding="utf-8") as f:
+    #             components.html(f.read(), height=820, scrolling=True)
+    #         # Optional: let admins download the HTML
+    #         with open(html_path, "rb") as fbin:
+    #             st.download_button(
+    #                 "Download graph HTML",
+    #                 data=fbin,
+    #                 file_name="neo4j_graph.html",
+    #                 mime="text/html",
+    #             )
+    # st.caption("Note: This view caps the number of nodes to avoid memory issues on large databases.")
     #################################################
 
 # Chat panel
