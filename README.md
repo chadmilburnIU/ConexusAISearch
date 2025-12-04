@@ -1,4 +1,4 @@
-# Conexus AI Search (Proof‑of‑Concept)
+# Conexus AI Search 
 
 A simple Streamlit app that lets you **ask natural‑language questions** and returns answers grounded in your organization’s **Conexus MRG case studies**. It also includes an **Admin** sidebar to upload new PDFs.
 
