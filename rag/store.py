@@ -1,5 +1,6 @@
 from neo4j import GraphDatabase
-from typing import List
+#from typing import List
+from typing import Optional, Dict, Any, List
 from config import NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD
 
 driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
@@ -62,3 +63,40 @@ RETURN cs.case_id AS case_id, cs.title AS title, cs.url AS url,
 def get_context(chunk_id: str):
     with get_session() as s:
         return s.run(GET_CONTEXT, chunk_id=chunk_id).single()
+
+_driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+
+def fetch_case_study(case_id: str) -> Optional[Dict[str, Any]]:
+    """
+    Returns {id, title, full_text, meta} for a CaseStudy.
+    If CaseStudy has property `full_text`, use it; otherwise join chunk texts
+    ordered by `chunk_index` (or `index` fallback).
+    """
+    with _driver.session() as s:
+        rows = s.run(
+            """
+            MATCH (c:CaseStudy {id: $id})
+            OPTIONAL MATCH (c)-[:HAS_CHUNK]->(ch:Chunk)
+            RETURN c AS cs,
+                   collect({i: coalesce(ch.chunk_index, ch.index, 0), t: ch.text}) AS chunks
+            """,
+            id=case_id,
+        ).data()
+    if not rows:
+        return None
+
+    cs = rows[0]["cs"]
+    chunks: List[Dict[str, Any]] = rows[0]["chunks"] or []
+
+    title = cs.get("title") or cs.get("name") or f"CaseStudy {case_id}"
+    # Use stored full_text if present; else assemble from chunks
+    full_text = cs.get("full_text")
+    if not full_text:
+        full_text = "\n".join(t["t"] for t in sorted(chunks, key=lambda x: x["i"]) if t.get("t"))
+
+    return {
+        "id": case_id,
+        "title": title,
+        "full_text": full_text or "",
+        "meta": {k: v for k, v in dict(cs).items() if k not in {"full_text"}},
+    }
