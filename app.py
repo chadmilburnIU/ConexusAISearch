@@ -90,59 +90,24 @@ if "history" not in st.session_state:
 
 user_q = st.chat_input("Ask about the case studies…")
 if user_q:
-    # Og not looking to web for answer
-    # top, best = retrieve_topn(user_q)
-    # if top and best >= HYBRID_ACCEPT:
-    #     answer = compose_grounded_answer(user_q, top)
-    #     grounded = True
-    #     ext_link = None
-    # else:
-    #     answer, ext_link = web_fallback_answer(user_q)
-    #     grounded = False
-
-    # top3_items = []
-    # for c in (top or [])[:3]:
-    #     top3_items.append(AnswerItem(
-    #         answer_snippet=c['text'][:220] + ('…' if len(c['text'])>220 else ''),
-    #         score=round(float(c['hybrid']), 3),
-    #         case_study=CaseStudy(case_id=c['case_id'], title=c['title'], url=c['url']),
-    #         chunk=Chunk(chunk_id=c['cid'], text=c['text'], order=int(c['order']),
-    #                     char_start=int(c['start']), char_end=int(c['end']))
-    #     ))
-
     top, best = retrieve_topn(user_q)
-    
-    # Decide if we should trust DB grounding
-    use_db = bool(top) and (best is not None) and best >= HYBRID_ACCEPT
-    
-    if use_db:
-        # Grounded in Neo4j case studies
+    if top and best >= HYBRID_ACCEPT:
         answer = compose_grounded_answer(user_q, top)
         grounded = True
         ext_link = None
-        chosen = (top or [])[:3]   # keep showing top 3 sources when grounded
     else:
-        # Not grounded in DB — use web fallback
         answer, ext_link = web_fallback_answer(user_q)
         grounded = False
-        chosen = []                # no DB sources to show
-    
-    # Only build source items from DB when grounded
+
     top3_items = []
-    for c in chosen:
+    for c in (top or [])[:3]:
         top3_items.append(AnswerItem(
-            answer_snippet=c['text'][:220] + ('…' if len(c['text']) > 220 else ''),
+            answer_snippet=c['text'][:220] + ('…' if len(c['text'])>220 else ''),
             score=round(float(c['hybrid']), 3),
             case_study=CaseStudy(case_id=c['case_id'], title=c['title'], url=c['url']),
-            chunk=Chunk(
-                chunk_id=c['cid'],
-                text=c['text'],
-                order=int(c['order']),
-                char_start=int(c['start']),
-                char_end=int(c['end'])
-            )
+            chunk=Chunk(chunk_id=c['cid'], text=c['text'], order=int(c['order']),
+                        char_start=int(c['start']), char_end=int(c['end']))
         ))
-
 
     st.session_state.history.append({
         "q": user_q,
