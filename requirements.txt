@@ -6,5 +6,4 @@ pydantic
 openai
 numpy
 pyvis==0.3.2
-requests
-beautifulsoup4
+
