@@ -96,7 +96,7 @@ In **Admin → Graph Explorer** you can render a capped, interactive view of you
 
 - **“Missing OPENAI_API_KEY/Neo4j credentials”**: Make sure you pasted the Secrets correctly in Streamlit Cloud.
 - **“Invalid API key”**: Double‑check your OpenAI key begins with `sk-proj-` and is active.
-- **Graph view won’t render**: The graph is capped for performance. Try reducing the node cap in the sidebar and rendering again. fileciteturn0file8
+- **Graph view won’t render**: The graph is capped for performance. Try reducing the node cap in the sidebar and rendering again.
 - **No results**: Ensure you’ve uploaded at least one PDF and clicked **Ensure Indexes** once after first deployment.
 
 ---
@@ -114,6 +114,3 @@ In **Admin → Graph Explorer** you can render a capped, interactive view of you
 
 ---
 
-## Support
-
-If you get stuck, open an issue in the GitHub repo with a short description and a screenshot of any error you see.
