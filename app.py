@@ -144,6 +144,17 @@ if user_q:
     else:
         answer, ext_link = web_fallback_answer(user_q)
         grounded = False
+    if grounded:
+        ans_lower = answer.lower()
+        no_info_phrases = [
+            "the provided chunks do not contain information",
+            "the provided chunks do not contain any information",
+            "the provided chunks do not include information",
+            "no relevant information was found in the provided chunks",
+            "the case studies do not contain information",
+        ]
+        if any(p in ans_lower for p in no_info_phrases):
+            grounded = False
 
     # top3_items = []
     # for c in (top or [])[:3]:
