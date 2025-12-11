@@ -29,6 +29,11 @@ EMBED_DIM = int(_get("EMBED_DIM", 1536))
 HYBRID_ACCEPT = float(_get("HYBRID_ACCEPT", 0.35))
 TOP_K = int(_get("TOP_K", 8))
 TOP_N = int(_get("TOP_N", 3))
+# -----------------------
+# Admin
+# -----------------------
+ADMIN_PASSWORD = _get("ADMIN_PASSWORD", "")
+
 # Optional feature flags
 WEB_SEARCH_ENABLED = _get("WEB_SEARCH_ENABLED", "false").lower() in ("1","true","yes")
 REQUIRED = {
