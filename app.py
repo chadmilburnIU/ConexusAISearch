@@ -145,15 +145,32 @@ if user_q:
         answer, ext_link = web_fallback_answer(user_q)
         grounded = False
 
+    # top3_items = []
+    # for c in (top or [])[:3]:
+    #     top3_items.append(AnswerItem(
+    #         answer_snippet=c['text'][:220] + ('…' if len(c['text'])>220 else ''),
+    #         score=round(float(c['hybrid']), 3),
+    #         case_study=CaseStudy(case_id=c['case_id'], title=c['title'], url=c['url']),
+    #         chunk=Chunk(chunk_id=c['cid'], text=c['text'], order=int(c['order']),
+    #                     char_start=int(c['start']), char_end=int(c['end']))
+    #     ))
+    # Only show top3 sources when the answer is grounded in the DB
     top3_items = []
-    for c in (top or [])[:3]:
-        top3_items.append(AnswerItem(
-            answer_snippet=c['text'][:220] + ('…' if len(c['text'])>220 else ''),
-            score=round(float(c['hybrid']), 3),
-            case_study=CaseStudy(case_id=c['case_id'], title=c['title'], url=c['url']),
-            chunk=Chunk(chunk_id=c['cid'], text=c['text'], order=int(c['order']),
-                        char_start=int(c['start']), char_end=int(c['end']))
-        ))
+    if grounded and top:
+        for c in top[:3]:
+            top3_items.append(AnswerItem(
+                answer_snippet=c['text'][:220] + ('…' if len(c['text']) > 220 else ''),
+                score=round(float(c['hybrid']), 3),
+                case_study=CaseStudy(case_id=c['case_id'], title=c['title'], url=c['url']),
+                chunk=Chunk(
+                    chunk_id=c['cid'],
+                    text=c['text'],
+                    order=int(c['order']),
+                    char_start=int(c['start']),
+                    char_end=int(c['end']),
+                ),
+            ))
+    
 
     st.session_state.history.append({
         "q": user_q,
@@ -165,38 +182,68 @@ if user_q:
         }
     })
 
+# for turn in st.session_state.history:
+#     st.chat_message("user").write(turn["q"])
+#     with st.chat_message("assistant"):
+#         st.write(turn["resp"]["answer"])
+#         if turn["resp"]["grounded_in_db"]:
+#             st.caption("Grounded in Conexus MRG Case Studies (top 3)")
+#         else:
+#             st.caption("Not found in Conexus MRG Case Studies")
+#             if turn["resp"].get("external_link"):
+#                 st.markdown(f"External source: {turn['resp']['external_link']}")
+#         for i, item in enumerate(turn["resp"]["top3"], start=1):
+#             #with st.expander(f"Source {i}: {item['case_study']['title']} (score {item['score']})"): # SHOW SCORE
+#             with st.expander(f"Source {i}: {item['case_study']['title']}"):
+#                 # Chunk text
+#                 st.write(item['chunk']['text'])
+
+#                 # Metadata (without raw url=...)
+#                 st.caption(
+#                     f"chunk_id={item['chunk']['chunk_id']} "
+#                     f"range={item['chunk']['char_start']}-{item['chunk']['char_end']}"
+#                 )
+
+#                 # Clickable link to the case study (opens in a new tab)
+#                 url = _normalize_url(item["case_study"].get("url"))
+#                 if url:
+#                     # Streamlit 1.52 supports link_button; fallback to HTML if anything odd happens
+#                     try:
+#                         st.link_button("Open case study ↗", url)
+#                     except Exception:
+#                         st.markdown(
+#                             f'<a href="{url}" target="_blank" rel="noopener noreferrer">Open case study ↗</a>',
+#                             unsafe_allow_html=True,
+#                         )
+
 for turn in st.session_state.history:
     st.chat_message("user").write(turn["q"])
     with st.chat_message("assistant"):
         st.write(turn["resp"]["answer"])
+
         if turn["resp"]["grounded_in_db"]:
             st.caption("Grounded in Conexus MRG Case Studies (top 3)")
+
+            # Only show sources when grounded
+            for i, item in enumerate(turn["resp"]["top3"], start=1):
+                with st.expander(f"Source {i}: {item['case_study']['title']}"):
+                    st.write(item['chunk']['text'])
+                    st.caption(
+                        f"chunk_id={item['chunk']['chunk_id']} "
+                        f"range={item['chunk']['char_start']}-{item['chunk']['char_end']}"
+                    )
+                    url = _normalize_url(item["case_study"].get("url"))
+                    if url:
+                        try:
+                            st.link_button("Open case study ↗", url)
+                        except Exception:
+                            st.markdown(
+                                f'<a href="{url}" target="_blank" rel="noopener noreferrer">Open case study ↗</a>',
+                                unsafe_allow_html=True,
+                            )
         else:
             st.caption("Not found in Conexus MRG Case Studies")
             if turn["resp"].get("external_link"):
                 st.markdown(f"External source: {turn['resp']['external_link']}")
-        for i, item in enumerate(turn["resp"]["top3"], start=1):
-            #with st.expander(f"Source {i}: {item['case_study']['title']} (score {item['score']})"): # SHOW SCORE
-            with st.expander(f"Source {i}: {item['case_study']['title']}"):
-                # Chunk text
-                st.write(item['chunk']['text'])
-
-                # Metadata (without raw url=...)
-                st.caption(
-                    f"chunk_id={item['chunk']['chunk_id']} "
-                    f"range={item['chunk']['char_start']}-{item['chunk']['char_end']}"
-                )
-
-                # Clickable link to the case study (opens in a new tab)
-                url = _normalize_url(item["case_study"].get("url"))
-                if url:
-                    # Streamlit 1.52 supports link_button; fallback to HTML if anything odd happens
-                    try:
-                        st.link_button("Open case study ↗", url)
-                    except Exception:
-                        st.markdown(
-                            f'<a href="{url}" target="_blank" rel="noopener noreferrer">Open case study ↗</a>',
-                            unsafe_allow_html=True,
-                        )
-
+            # No source panels in the non-grounded case
 
