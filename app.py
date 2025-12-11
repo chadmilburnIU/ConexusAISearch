@@ -5,7 +5,7 @@ from rag.composer import compose_grounded_answer, web_fallback_answer
 from rag.models import AnswerItem, CaseStudy, Chunk
 from rag.loader import upload_and_ingest
 from rag.store import ensure_indexes
-from config import EMBED_DIM, HYBRID_ACCEPT
+from config import EMBED_DIM, HYBRID_ACCEPT, ADMIN_PASSWORD
 ####################################################
 # these are required to view full graph db if needed
 # import streamlit.components.v1 as components
@@ -13,6 +13,32 @@ from config import EMBED_DIM, HYBRID_ACCEPT
 ####################################################
 from urllib.parse import urlparse
 #####################################################
+
+#####################################################
+def ensure_admin_state():
+    if "is_admin" not in st.session_state:
+        st.session_state["is_admin"] = False
+
+def admin_login_widget():
+    ensure_admin_state()
+
+    with st.sidebar.expander("Admin login", expanded=not st.session_state["is_admin"]):
+        if st.session_state["is_admin"]:
+            st.success("Admin mode enabled.")
+            if st.button("Log out"):
+                st.session_state["is_admin"] = False
+        else:
+            pwd = st.text_input("Admin password", type="password")
+            if st.button("Log in"):
+                if not ADMIN_PASSWORD:
+                    st.warning("Admin password not configured on server.")
+                elif pwd == ADMIN_PASSWORD:
+                    st.session_state["is_admin"] = True
+                    st.success("Admin mode enabled.")
+                else:
+                    st.error("Incorrect password.")
+#####################################################
+
 
 # Maintenance gate
 if st.secrets.get("MAINTENANCE_MODE", "false").lower() in ("true", "1", "yes"):
@@ -52,15 +78,35 @@ def _normalize_url(u: str | None) -> str | None:
 #############################################################
 
 # Sidebar: Admin
+# with st.sidebar:
+#     st.header("Admin")
+#     if st.button("Ensure Indexes"):
+#         ensure_indexes(EMBED_DIM)
+#         st.success("Indexes ensured.")
+#     st.markdown("---")
+#     st.header("Upload Case Studies")
+#     upload_and_ingest()
+#     st.markdown("---")
+# Sidebar: Admin
 with st.sidebar:
     st.header("Admin")
-    if st.button("Ensure Indexes"):
-        ensure_indexes(EMBED_DIM)
-        st.success("Indexes ensured.")
-    st.markdown("---")
-    st.header("Upload Case Studies")
-    upload_and_ingest()
-    st.markdown("---")
+
+    # Show login / logout controls
+    admin_login_widget()
+
+    # Only show admin tools if logged in
+    if st.session_state.get("is_admin"):
+        if st.button("Ensure Indexes"):
+            ensure_indexes(EMBED_DIM)
+            st.success("Indexes ensured.")
+
+        st.markdown("---")
+        st.header("Upload Case Studies")
+        upload_and_ingest()
+        st.markdown("---")
+    else:
+        st.info("Admin tools are locked. Please log in above to manage indexes or upload case studies.")
+
     #################################################
     # This will display full db graph
     # st.subheader("Graph Explorer")
