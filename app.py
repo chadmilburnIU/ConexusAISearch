@@ -48,9 +48,10 @@ if st.secrets.get("MAINTENANCE_MODE", "false").lower() in ("true", "1", "yes"):
     st.stop()
 
 def _require_password():
-    password = st.secrets.get("APP_PASSWORD", "")
-    if not password:
-        return  # no password set => skip
+    return
+    # password = st.secrets.get("APP_PASSWORD", "")
+    # if not password:
+    #     return  # no password set => skip
 
     def _check():
         if hmac.compare_digest(st.session_state._pw, password):
