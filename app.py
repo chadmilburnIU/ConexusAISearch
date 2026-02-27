@@ -13,7 +13,8 @@ from config import EMBED_DIM, HYBRID_ACCEPT, ADMIN_PASSWORD
 ####################################################
 from urllib.parse import urlparse
 #####################################################
-
+from config import NEO4J_URI
+st.sidebar.caption(f"DEBUG Neo4j URI: {NEO4J_URI}")
 #####################################################
 def ensure_admin_state():
     if "is_admin" not in st.session_state:
